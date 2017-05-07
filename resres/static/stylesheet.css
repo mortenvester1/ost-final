@@ -1,0 +1,19 @@
+@import url(http://fonts.googleapis.com/css?family=Lato);
+
+body {
+    font-family: 'Lato-light', Verdana, Helvetica, sans-serif;
+    background: #f2f2f2;
+    width: 100%
+    height: 100%;
+}
+
+div.header {
+    font-family: 'Lato';
+    font-size: 1em;
+    background: #d9d9d9;
+    color: black;
+}
+
+span.arco {
+    font-family: 'Lato-italic';
+}

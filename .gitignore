@@ -1,3 +1,4 @@
 .DS_store
 venv/*
 .env
+resres/__pycache__/*
