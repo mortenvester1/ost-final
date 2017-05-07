@@ -1,0 +1,22 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang='eng'>
+
+    <head>
+        <meta charset="utf-8">
+        <title>
+            ARRS - Users
+        </title>
+        <link type="text/css" rel="stylesheet" href="static/stylesheet.css" />
+         
+        <link type="text/css" rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.min.css">
+    </head>
+    <body>
+    <p> Users: </p>
+    {% for user in users %}
+        <li> {{user.name}}</li>
+        <li> {{user.email}}</li>
+        <li> {{user.password}}</li>
+    {% endfor %}
+    </body>
+</html>
