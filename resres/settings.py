@@ -34,11 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    # Disable Django's own staticfiles handling in favour of WhiteNoise, for
-    # greater consistency between gunicorn and `./manage.py runserver`. See:
-    # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+    'resres'
 ]
 
 MIDDLEWARE = [
@@ -75,12 +73,13 @@ WSGI_APPLICATION = 'resres.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'heroku_f5a0efbc790b952',
+        'USER': 'b00cfa4a19eb46',
+        'PASSWORD': 'cfef9950', 
+        'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
     }
 }
 
