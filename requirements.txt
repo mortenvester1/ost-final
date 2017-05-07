@@ -8,7 +8,6 @@ Django==1.11
 ez-setup==0.9
 Flask==0.12.1
 gunicorn==19.7.1
-html5lib==0.999999999
 itsdangerous==0.24
 Jinja2==2.9.6
 Markdown==2.6.8
