@@ -1,1 +1,1 @@
-web: python ostot.manage.py --log-file=-
+web: python ostot.ostot.wsgi.py --log-file=-
