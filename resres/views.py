@@ -8,3 +8,6 @@ def index(request):
 
 def addUser(request):
     return HttpResponse('User Added')
+
+def p1(request):
+    return render(request, 'p1.html')
