@@ -1,3 +1,1 @@
-# ostot
-
-Open Source Tools Final
+# Open Source Tools - Final
