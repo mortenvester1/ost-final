@@ -1,1 +1,1 @@
-web: gunicorn ostot.manage:app --log-file=-
+web: python ostot.manage.py --log-file=-
