@@ -23,5 +23,7 @@ urlpatterns = [
     url(r'^reservations', views.getReservation, name = 'reservations'),
     url(r'^resource', views.getResource, name = 'resources'),
     url(r'^signup', views.signup, name = 'signup'),
+    url(r'^userlogin', views.userlogin, name = 'userlogin'),
+    url(r'^userlogout', views.userlogout, name = 'userlogout'),
     url(r'^admin/', admin.site.urls),
 ]

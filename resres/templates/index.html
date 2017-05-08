@@ -16,13 +16,23 @@
                         ARRS - 
                 </span>
                 <span class="arco" style="font-size:1.5em">
-                    A Resource Reservation System ITs alive
+                    IT'S ALIVE
                 </span>
             </p>
+            {% if user and user.username%}
+            <p>
+                {{user.username}}
+            </p>
+            {% endif %}
         </div>
         <center>
         <div>
             <nav class="navbar navbar-default">
+                {% if user and user.username %}
+                <a href="userlogout.html"> Logout </a>
+                {% else %}
+                <a href="userlogin.html"> Login </a>
+                {% endif %}
                 <a href="signup.html"> Sign Up </a>
                 <a href="users.html"> Users </a>
                 <a href="resources.html"> Resources </a>

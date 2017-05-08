@@ -1,48 +1,68 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from .models import Users, Resource, Reservation
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+
+from .models import Resource, Reservation
 from .forms import SignUpForm
-#from django.contrib.auth.models import User
 
 def index(request):
     return render(request, 'index.html')
 
 def users(request):
     # To delete users from django
-    #temp = User.objects.all()
-    #temp.delete()
+    users = User.objects.all()
+    #users.delete()
 
-
-    users = Users.objects.all()
+    #users = Users.objects.all()
     return render(request, 'users.html', { "users" : users })
 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            #form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             email = form.cleaned_data.get('email')
-            #user = authenticate(username = username, password = raw_password)
-            
+            user = User.objects.create_user(username = username, password = raw_password, email = email)
+            user.save()
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)            
             # Check if user exists in database
-            # if yes, 
-            num_email = Users.objects.filter(name = username).count()
-            num_username = Users.objects.filter(email = email).count()
-            num_results = num_email + num_username
-            if num_results == 0:
-                user = Users(name = username, password = raw_password, email = email)
-                user.save()
-                return redirect('/')
+            #num_results = User.objects.filter(username = username).count()
+            #if num_results > 0:
+            #    return render(request, 'signup.html', {'form' : form, 'exist' : True})
 
-            return render(request, 'signup.html', {'form' : form, 'exist' : True})
+            return render(request, '/', {'user' : request.user})
     else:
         form = SignUpForm()
     
     return render(request, 'signup.html', {'form' : form})
 
+def userlogin(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password')
+
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            if request.user.is_authenticated():
+                print("lalla")
+                return render(request, 'index.html', {'user' : request.user})                 
+
+            print('Imhere')
+            return render(request, 'userlogin.html', {'form' : form})
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'userlogin.html', {'form' : form})
+
+def userlogout(request):
+    logout(request)
+    return redirect('/')
 
 def getUser(request):
     return HttpResponse('Not Done yet')

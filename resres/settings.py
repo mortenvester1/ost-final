@@ -29,6 +29,7 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'resres',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-    'resres'
 ]
 
 MIDDLEWARE = [
@@ -73,13 +73,12 @@ WSGI_APPLICATION = 'resres.wsgi.application'
 
 
 # Database
-#
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'heroku_4367a4fa94401b7',
-        'USER': 'b99a2e4dac9761',
-        'PASSWORD': '579a8eaa', 
+        'NAME': 'heroku_52060a7b1322abe',
+        'USER': 'bbf995ef258cc9',
+        'PASSWORD': 'ba5ff115', 
         'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
     }
 }

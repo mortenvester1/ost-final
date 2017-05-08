@@ -2,3 +2,4 @@
 venv/*
 .env
 resres/__pycache__/*
+migrate.sh
