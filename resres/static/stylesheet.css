@@ -3,7 +3,7 @@
 body {
     font-family: 'Lato-light', Verdana, Helvetica, sans-serif;
     background: #f2f2f2;
-    width: 100%
+    width: 80%
     height: 100%;
 }
 
@@ -11,9 +11,20 @@ div.header {
     font-family: 'Lato';
     font-size: 1em;
     background: #d9d9d9;
+    width: 80%
     color: black;
 }
 
 span.arco {
     font-family: 'Lato-italic';
+}
+
+div.containerTest {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 800px;
+    background: #d9d9d9;
 }

@@ -1,29 +1,55 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
 from .models import Users, Resource, Reservation
+from .forms import SignUpForm
+#from django.contrib.auth.models import User
 
 def index(request):
     return render(request, 'index.html')
 
 def users(request):
+    # To delete users from django
+    #temp = User.objects.all()
+    #temp.delete()
+
+
     users = Users.objects.all()
     return render(request, 'users.html', { "users" : users })
 
-def createUser(request):
-    user = Users(name = 'user1', \
-                 password = 'passw1', \
-                 email = 'email1')
-    user.save()
-    return HttpResponse('Not Done yet')
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            #form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            email = form.cleaned_data.get('email')
+            #user = authenticate(username = username, password = raw_password)
+            
+            # Check if user exists in database
+            # if yes, 
+            num_email = Users.objects.filter(name = username).count()
+            num_username = Users.objects.filter(email = email).count()
+            num_results = num_email + num_username
+            if num_results == 0:
+                user = Users(name = username, password = raw_password, email = email)
+                user.save()
+                return redirect('/')
 
-def login(request):
-    return HttpResponse('Not Done yet')
+            return render(request, 'signup.html', {'form' : form, 'exist' : True})
+    else:
+        form = SignUpForm()
+    
+    return render(request, 'signup.html', {'form' : form})
+
 
 def getUser(request):
     return HttpResponse('Not Done yet')
 
 def getResource(request):
-    return HttpResponse('Not Done yet')
+    resources = Resource.objects.all()
+    return render(request, 'resources.html', { "resource" : resources })
 
 def createResource(request):
     resource = Resource(owner = 'owner1', \
@@ -39,7 +65,8 @@ def deleteReservation(request):
     return HttpResponse('Not Done yet')    
 
 def getReservation(request):
-    return HttpResponse('Not Done yet')
+    reservations = Reservation.objects.all()
+    return render(request, 'reservations.html', { "reservation" : reservations })
 
 def createReservation(request):
     Reservation = Reservation(user = 'user1', \

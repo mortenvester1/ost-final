@@ -20,5 +20,8 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name = 'index'),
     url(r'^users', views.users, name = 'users'),
+    url(r'^reservations', views.getReservation, name = 'reservations'),
+    url(r'^resource', views.getResource, name = 'resources'),
+    url(r'^signup', views.signup, name = 'signup'),
     url(r'^admin/', admin.site.urls),
 ]
