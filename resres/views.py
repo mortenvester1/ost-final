@@ -34,7 +34,7 @@ def signup(request):
             #if num_results > 0:
             #    return render(request, 'signup.html', {'form' : form, 'exist' : True})
 
-            return render(request, '/', {'user' : request.user})
+            return render(request, 'index.html', {'user' : request.user})
     else:
         form = SignUpForm()
     
@@ -50,10 +50,8 @@ def userlogin(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             if request.user.is_authenticated():
-                print("lalla")
                 return render(request, 'index.html', {'user' : request.user})                 
 
-            print('Imhere')
             return render(request, 'userlogin.html', {'form' : form})
     else:
         form = AuthenticationForm()
