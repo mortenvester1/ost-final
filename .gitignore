@@ -3,3 +3,5 @@ venv/*
 .env
 resres/__pycache__/*
 migrate.sh
+push.sh
+devPlan.txt

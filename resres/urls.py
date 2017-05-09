@@ -19,11 +19,14 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name = 'index'),
-    url(r'^users', views.users, name = 'users'),
-    url(r'^reservations', views.getReservation, name = 'reservations'),
-    url(r'^resource', views.getResource, name = 'resources'),
+    url(r'^DEVprint', views.DEVprint, name = 'DEVprint'),
     url(r'^signup', views.signup, name = 'signup'),
     url(r'^userlogin', views.userlogin, name = 'userlogin'),
     url(r'^userlogout', views.userlogout, name = 'userlogout'),
+    url(r'^userpage', views.userpage, name = 'userpage'),
+    url(r'^createresource',views.createresource, name = 'createresource'),
+    url(r'^viewresource',views.viewresource, name = 'viewresource'),
+    url(r'^viewresource(?P<rid>[0-9]+)$',views.viewresource),
+    url(r'^viewtags',views.viewtags, name = 'viewtags'),
     url(r'^admin/', admin.site.urls),
 ]

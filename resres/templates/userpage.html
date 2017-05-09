@@ -1,0 +1,101 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    {% if user and user.username %}
+        <span class="userpageinfoHeader">
+        Your Upcoming Reservations <br>
+        </span>
+        {% if userReservations %}
+        <table class="userpage">
+            <tr>
+                <th> Resource Name </th>
+                <th> Owner </th>
+                <th> Hours </th>
+                <th> Date </th> 
+                <th> Start Time </th>
+                <th> End Time </th>
+                <th> </th>
+            </tr>
+
+            {% for reservation in userReservations %}
+            <tr> 
+                <td> {{ reservation.resource.name }} </td>
+                <td> </td>
+                <td> </td>
+                <td> {{ reservation.date }} </td>
+                <td> {{ reservation.start }} </td> 
+                <td> {{ reservation.end }}</td>
+                <td> Cancel? </td>
+            </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            You have no Reservations 
+        {% endif %}
+        <br>
+
+        <span class="userpageinfoHeader"> 
+        Available Resources <br>
+        </span>
+        {% if resources %}
+        
+        <table class="userpage">
+            <tr>
+                <th> Resource Name </th>
+                <th> Owner </th>
+                <th> Hours </th>
+                <th> Date </th> 
+                <th> Start Time </th>
+                <th> End Time </th>
+                <th> </th>
+            </tr>
+            {% for res in resources %}
+            <tr> 
+                <td> {{ res.name }} </td>
+                <td> {{ res.owner }} </td>
+                <td> {{ res.start }} - {{ res.end }}</td> 
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> Reserve </td>
+            </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+        No Resources available
+        {% endif %}
+        <br>
+        
+        <span class="userpageinfoHeader"> 
+        Your Resources <br>
+        </span>
+        {% if userResources %}
+        <table class="userpage">
+            <tr>
+                <th> Resource Name </th>
+                <th> Owner </th>
+                <th> Hours </th>
+                <th> Date </th> 
+                <th> Start Time </th>
+                <th> End Time </th>
+                <th> </th>
+            </tr>
+            {% for res in userResources %}
+            <tr> 
+                <td> {{ res.name }} </td>
+                <td> {{ res.owner }} </td>
+                <td> {{ res.start }} - {{ res.end }}</td> 
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> <a href="viewresource?rid={{res.id}}"> Modify </a> </td>
+            </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+        You Own No Resources
+        {% endif %}
+        <br>
+    {% endif %}
+{% endblock %}

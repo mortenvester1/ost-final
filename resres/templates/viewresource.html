@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+{% block content %}
+<h2> Resource Overview </h2>
+    {% if resource %}
+      <table class="resource">
+        <tr>
+          <th> Name </th>
+          <th> Owner </th> 
+          <th> Hours </th>
+        </tr>
+        <tr> 
+          <td> {{ resource.name }} </td>
+          <td> {{ resource.owner }} </td>
+          <td> {{ resource.start }} - {{ resource.end }}</td>
+        </tr>
+      </table> <br>
+      {% if tags %}
+      {% for tag in tags %}
+      <a href=viewtags?tag={{tag}}> #{{tag}} </a>
+      {% endfor %}
+      {% endif %}
+      <br>
+      <br>
+      {% if form %}
+        <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+          <p>
+            {{ field.label_tag }}<br>
+            {{ field }}
+            {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+          </p>
+        {% endfor %}
+      {% endif %}
+          <button type="submit">
+            Make Reservation
+          </button>
+        </form>
+    {% else %}
+    Resource does not exist
+    {% endif %}
+{% endblock %}

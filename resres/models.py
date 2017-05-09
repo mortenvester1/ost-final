@@ -10,13 +10,14 @@ from django.contrib.auth.models import User
 class Resource(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    tags = models.CharField(max_length=100)
-    url = models.CharField(max_length=100)
-    availStart = models.DateTimeField(timezone.now())
-    availEnd = models.DateTimeField(timezone.now())
+    tags = models.CharField(max_length=100, default="")
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
+    url = models.CharField(max_length=100, default="")
 
 class Reservation(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
-    startTime = models.DateTimeField(timezone.now())
-    endTime = models.DateTimeField(timezone.now())
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
+    date = models.BigIntegerField(default=0)

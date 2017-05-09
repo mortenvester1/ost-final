@@ -8,3 +8,14 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+
+class ResourceForm(forms.Form):
+    name = forms.CharField(max_length=100, label='Resource Name')
+    tags = forms.CharField(max_length=100, label='Tags')
+    start = forms.CharField(max_length=100, label='Avail Start')
+    end = forms.CharField(max_length=100, label='Avail End')
+    
+class ReservationForm(forms.Form):
+    date = forms.CharField(max_length=100, label='Date')
+    start = forms.CharField(max_length=100, label='Start Time')
+    end = forms.CharField(max_length=100, label='End Time')

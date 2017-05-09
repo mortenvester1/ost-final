@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+{% block content %}
+<h2> Tag: </h2>
+    {% if resource %}
+      <table style="width:100%">
+        <tr>
+          <th> Name </th>
+          <th> Owner </th> 
+          <th> Availbilty Hours </th>
+        </tr>
+        <tr> 
+          <td> {{ resource.name }} </td>
+          <td> {{ resource.owner }} </td>
+          <td> {{ resource.start }} - {{ resource.end }}</td>
+        </tr>
+      </table> <br>
+      {% if tags %}
+      {% for tag in tags %}
+      {{tag}}
+      {% endfor %}
+      {% endif %}
+      <button type="Reserve">
+        Reserve
+      </button>
+    {% else %}
+    Resource id does not exist
+    {% endif %}
+{% endblock %}

@@ -11,38 +11,35 @@
     <body>
     <div>
         <div class="header"> 
-            <p>
-                <span style="font-size:2em"> 
-                        ARRS - 
-                </span>
-                <span class="arco" style="font-size:1.5em">
-                    IT'S ALIVE
-                </span>
-            </p>
-            {% if user and user.username%}
-            <p>
-                {{user.username}}
-            </p>
-            {% endif %}
-        </div>
-        <center>
-        <div>
-            <nav class="navbar navbar-default">
+            <span style="font-size:2em"> 
+                ARRS - 
+            </span>
+            <span class="arco" style="font-size:1.5em">
                 {% if user and user.username %}
-                <a href="userlogout.html"> Logout </a>
+                    Welcome {{user.username}}
                 {% else %}
-                <a href="userlogin.html"> Login </a>
+                    IT'S ALIVE
                 {% endif %}
-                <a href="signup.html"> Sign Up </a>
-                <a href="users.html"> Users </a>
-                <a href="resources.html"> Resources </a>
-                <a href="reservations.html"> Reservations </a>
+            </span>
+            <nav class="NavBar">
+                {% if user and user.username %}
+                    <a href="userlogout.html"> Logout </a>
+                    <a href="userpage.html"> My Site </a>
+                    <a href="createresource.html"> Create New Resource </a>
+                    <!--
+                    <a href="reservations.html"> Reservations </a>
+                    -->
+                    <a href="DEVprint.html"> Developer Page </a>
+                {% else %}
+                    <a href="userlogin.html"> Login </a>
+                    <a href="signup.html"> Sign Up </a>
+                {% endif %}
             </nav>
-        </div> 
-        </center>
         </div>
+    </div>
     </body> 
-<div class="containerTest">
-{% block content %}{% endblock %}
-</div>
+    <div class="ContainerSection">
+        {% block content %}
+        {% endblock %}
+    </div>
 </html>

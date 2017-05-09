@@ -2,7 +2,6 @@
 
 body {
     font-family: 'Lato-light', Verdana, Helvetica, sans-serif;
-    background: #f2f2f2;
     width: 80%
     height: 100%;
 }
@@ -10,8 +9,14 @@ body {
 div.header {
     font-family: 'Lato';
     font-size: 1em;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
     background: #d9d9d9;
     width: 80%
+
     color: black;
 }
 
@@ -19,12 +24,52 @@ span.arco {
     font-family: 'Lato-italic';
 }
 
-div.containerTest {
+span.userpageinfoHeader {
+    font-family: 'Lato-italic';
+    font-size: 1.25em;
+    color: #000000;
+}
+
+div.ContainerSection {
     margin-right: auto;
     margin-left: auto;
     padding-left: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
-    width: 800px;
+    min-height: 500px;
     background: #d9d9d9;
+}
+
+nav.NavBar {
+    overflow: hidden;
+    margin-right: auto;
+    margin-left: auto;
+}
+nav.NavBar a {
+    float: left;
+    text-align: center;
+    padding: 10px 10px 10px 0px;
+    display: block;
+}
+
+table.userpage {
+    table-layout:fixed;
+    margin-right: auto;
+    margin-left: auto;
+    width:90%;
+    overflow:hidden;
+    word-wrap: break-word;
+}
+
+th {
+    border-bottom: 1px solid #000000;
+}
+
+table.resource {
+    table-layout:fixed;
+    margin-right: auto;
+    margin-left: auto;
+    width:90%;
+    overflow:hidden;
+    word-wrap: break-word;
 }

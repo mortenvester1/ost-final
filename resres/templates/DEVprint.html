@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <h2> Users: </h2>
+    {% if users %}
+    {% for user in users %}
+        <li> {{ user.username }}, {{ user.email }}</li>
+    {% endfor %}
+    {% endif %}
+    
+    <h2> Resources: </h2>
+    {% if resources %}
+    {% for res in resources %}
+        <li> {{ res.owner }}, {{ res.name }}, {{ res.start }}, {{ res.end }}</li>
+    {% endfor %}
+    {% endif %}
+
+    {% if reservations %}
+    <h2> reservation: </h2>
+    {% for res in reservations %}
+        <li> {{ res.owner }}, {{ res.resource }}, {{ res.start }}, {{ res.end }}</li>
+    {% endfor %}
+    {% endif %}
+{% endblock %}
