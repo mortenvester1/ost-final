@@ -19,8 +19,8 @@ def DEVprint(request):
     resources = Resource.objects.all()
     reservations = Reservation.objects.all()
     #users.delete()
-    #resources.delete()
-    #reservations.delete()
+    resources.delete()
+    reservations.delete()
     out = { "users" : users ,\
             "resources" : resources, \
             "reservations" : reservations}
