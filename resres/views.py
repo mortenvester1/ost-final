@@ -14,13 +14,13 @@ def index(request):
 def DEVprint(request):
     if not request.user.is_authenticated():
         return redirect('/')
-    # To delete users from django
+    
     users = User.objects.all()
     resources = Resource.objects.all()
     reservations = Reservation.objects.all()
     #users.delete()
-    resources.delete()
-    reservations.delete()
+    #resources.delete()
+    #reservations.delete()
     out = { "users" : users ,\
             "resources" : resources, \
             "reservations" : reservations}
@@ -43,10 +43,15 @@ def signup(request):
             #if num_results > 0:
             #    return render(request, 'signup.html', {'form' : form, 'exist' : True})
 
-            return render(request, 'userpage.html', {'user' : request.user})                 
+            resources = Resource.objects.all()
+            out = { 'user' : user, \
+                    'resources' : resources}
+
+            print('here2')
+            return render(request, 'userpage.html', out)                 
     else:
         form = SignUpForm()
-    
+    print('here')
     return render(request, 'signup.html', {'form' : form})
 
 def userlogin(request):
@@ -59,12 +64,20 @@ def userlogin(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             if request.user.is_authenticated():
-                return render(request, 'userpage.html', {'user' : request.user})                 
+                resources = Resource.objects.all()
+                userResources = Resource.objects.filter(owner = user)
+                reservations = Reservation.objects.filter(owner = user)
+
+                out = { 'user' : user, \
+                        'resources' : resources, \
+                        'userResources' : userResources, \
+                        'userReservations' : reservations}
+
+                return render(request, 'userpage.html', out)                 
 
             return render(request, 'userlogin.html', {'form' : form})
     else:
         form = AuthenticationForm()
-
     return render(request, 'userlogin.html', {'form' : form})
 
 def userlogout(request):
@@ -128,48 +141,108 @@ def createresource(request):
     return render(request, 'createresource.html', {'form' : form})
 
 def viewresource(request, rid = 0):    
+    if not request.user.is_authenticated():
+        return redirect('/')
+    
+    out = {}
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         rid = request.GET['rid']
-        resource = Resource.objects.filter(url = "rid"+rid)
-        out = {'resource' : resource[0] }
+        resource = Resource.objects.filter(url = "rid"+rid)[0]
+        out['resource'] = resource
+        
+        if request.user == resource.owner:
+            modifyForm = ResourceForm(request.POST)
+            #out['modify'] = modifyForm
+
+            if modifyForm.is_valid():
+                resource.name = modifyForm.cleaned_data.get('name')
+                resource.tags = modifyForm.cleaned_data.get('tags')
+                resource.start = modifyForm.cleaned_data.get('start')
+                resource.end = modifyForm.cleaned_data.get('end')
+                resource.save()
+                return redirect('userpage.html')
 
         if form.is_valid():
-            print('Did I make it?')
             uName = request.user
-            rName = resource[0]
+            rName = resource
             date = form.cleaned_data.get('date')
             start = form.cleaned_data.get('start')
             end = form.cleaned_data.get('end')
-
             reservation = Reservation(owner = uName,\
                                       resource = rName,\
                                       date = date,\
                                       start = start,\
                                       end = end)
             reservation.save()
-            #return render(request, 'userpage.html', {'user' : request.user})
             return redirect('userpage.html')
         
-        out['user'] = request.user
-        out['form'] = form
-        return render(request, 'viewresource.html', out)
+        else:
+            out['user'] = request.user
+            out['form'] = form
+            return render(request, 'viewresource.html', out)
     else:
         rid = request.GET['rid']
         resource = Resource.objects.filter(url = "rid"+rid)
         if len(resource) > 0:
-            out = {'resource' : resource[0] }
+            out['resource'] = resource[0]
             tags = resource[0].tags.split(' ')
             out['tags'] = tags
         else:
             out = {}
+            print('here4')
             return render(request, 'viewresource.html', out)
 
-    form = ReservationForm()
-    out['form'] = form
-    return render(request, 'viewresource.html', out)
+    
+        form = ReservationForm()
+        out['form'] = form
+        if request.user == resource[0].owner:
+            modifyForm = ResourceForm({'name' : resource[0].name, \
+                                       'tags' : resource[0].tags,\
+                                       'start' : resource[0].start,\
+                                       'end' : resource[0].end})
+            out['modify'] = modifyForm
+        return render(request, 'viewresource.html', out)
 
 
-def viewtags(request, tag = "None"):
+def viewtags(request, tag = ""):
+    if not request.user.is_authenticated():
+        return redirect('/')
+    tag = request.GET['tag']
 
-    return redirect('/')
+    res = []
+    resources = Resource.objects.all()
+    for resource in resources:
+        if tag in resource.tags.split(' '):
+            res.append(resource)
+    
+    out = {}
+    if tag != "":
+        out['tags'] = res
+    
+    out['tag'] = tag
+
+    return render(request, 'viewtags.html', out)
+
+def cancelreservation(request, rid = 0):
+    if not request.user.is_authenticated():
+        return redirect('/')
+
+    rid = request.GET['rid']
+    reservation = Reservation.objects.filter(id = rid)[0]
+    
+    user = request.user
+    if user == reservation.owner:
+        reservation.delete()
+        resources = Resource.objects.all()
+        userResources = Resource.objects.filter(owner = user)
+        reservations = Reservation.objects.filter(owner = user)
+
+        out = {'user' : user, \
+           'resources' : resources, \
+           'userResources' : userResources, \
+           'userReservations' : reservations}
+
+        return render(request, 'userpage.html', out)
+    else:
+        return redirect('/')

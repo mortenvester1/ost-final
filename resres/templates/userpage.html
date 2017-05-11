@@ -18,15 +18,15 @@
                 <th> </th>
             </tr>
 
-            {% for reservation in userReservations %}
+            {% for res in userReservations %}
             <tr> 
-                <td> {{ reservation.resource.name }} </td>
+                <td> <a href="viewresource?rid={{res.resource.id}}"> {{ res.resource.name }} </a> </td>
                 <td> </td>
                 <td> </td>
-                <td> {{ reservation.date }} </td>
-                <td> {{ reservation.start }} </td> 
-                <td> {{ reservation.end }}</td>
-                <td> Cancel? </td>
+                <td> {{ res.date }} </td>
+                <td> {{ res.start }} </td> 
+                <td> {{ res.end }}</td>
+                <td> <a href="cancelreservation?rid={{res.id}}"> Cancel? </a> </td>
             </tr>
             {% endfor %}
             </table>
@@ -52,13 +52,13 @@
             </tr>
             {% for res in resources %}
             <tr> 
-                <td> {{ res.name }} </td>
+                <td> <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a> </td>
                 <td> {{ res.owner }} </td>
                 <td> {{ res.start }} - {{ res.end }}</td> 
                 <td> </td>
                 <td> </td>
                 <td> </td>
-                <td> Reserve </td>
+                <td> <a href="viewresource?rid={{res.id}}"> Reserve </a> </td>
             </tr>
             {% endfor %}
             </table>
@@ -83,7 +83,7 @@
             </tr>
             {% for res in userResources %}
             <tr> 
-                <td> {{ res.name }} </td>
+                <td> <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a> </td>
                 <td> {{ res.owner }} </td>
                 <td> {{ res.start }} - {{ res.end }}</td> 
                 <td> </td>

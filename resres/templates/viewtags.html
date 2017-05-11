@@ -1,28 +1,26 @@
 {% extends 'index.html' %}
 {% block content %}
-<h2> Tag: </h2>
-    {% if resource %}
-      <table style="width:100%">
+<span class="userpageinfoHeader"> 
+  Tag Overview: {{ tag }}
+</span>
+    {% if tags %}
+      <table class="userpage">
         <tr>
-          <th> Name </th>
+          <th> Resource Name </th>
           <th> Owner </th> 
           <th> Availbilty Hours </th>
         </tr>
+        {% for res in tags %}
         <tr> 
-          <td> {{ resource.name }} </td>
-          <td> {{ resource.owner }} </td>
-          <td> {{ resource.start }} - {{ resource.end }}</td>
+          <td> 
+            <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a>
+          </td>
+          <td> {{ res.owner }} </td>
+          <td> {{ res.start }} - {{ res.end }}</td>
         </tr>
+        {% endfor %}
       </table> <br>
-      {% if tags %}
-      {% for tag in tags %}
-      {{tag}}
-      {% endfor %}
-      {% endif %}
-      <button type="Reserve">
-        Reserve
-      </button>
     {% else %}
-    Resource id does not exist
+    No Availble resources under this tag
     {% endif %}
 {% endblock %}

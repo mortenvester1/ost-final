@@ -28,5 +28,8 @@ urlpatterns = [
     url(r'^viewresource',views.viewresource, name = 'viewresource'),
     url(r'^viewresource(?P<rid>[0-9]+)$',views.viewresource),
     url(r'^viewtags',views.viewtags, name = 'viewtags'),
+    url(r'^viewtags(?P<tag>[a-zA-Z0-9]+)$',views.viewtags),
+    url(r'^cancelreservation',views.cancelreservation, name = 'cancelreservation'),
+    url(r'^cancelreservation(?P<rid>[0-9]+)$',views.cancelreservation),
     url(r'^admin/', admin.site.urls),
 ]

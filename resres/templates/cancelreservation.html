@@ -1,0 +1,9 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    {% if user and user.username %}
+        <span class="userpageinfoHeader">
+        Your Reservation has been cancelled <br>
+        </span>
+{% endblock %}

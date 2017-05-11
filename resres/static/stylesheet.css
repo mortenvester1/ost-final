@@ -73,3 +73,9 @@ table.resource {
     overflow:hidden;
     word-wrap: break-word;
 }
+
+div.formBox {
+    display: inline-block; 
+    min-width:200px; 
+    vertical-align:top;
+}
