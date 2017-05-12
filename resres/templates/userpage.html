@@ -14,7 +14,7 @@
                 <th> Hours </th>
                 <th> Date </th> 
                 <th> Start Time </th>
-                <th> End Time </th>
+                <th> Duration </th>
                 <th> </th>
             </tr>
 
@@ -25,7 +25,7 @@
                 <td> </td>
                 <td> {{ res.date }} </td>
                 <td> {{ res.start }} </td> 
-                <td> {{ res.end }}</td>
+                <td> {{ res.duration }}</td>
                 <td> <a href="cancelreservation?rid={{res.id}}"> Cancel? </a> </td>
             </tr>
             {% endfor %}

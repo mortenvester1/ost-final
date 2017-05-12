@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'resres.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'heroku_52060a7b1322abe',
-        'USER': 'bbf995ef258cc9',
-        'PASSWORD': 'ba5ff115', 
+        'NAME': 'heroku_3cb8a28358bc420',
+        'USER': 'b74cb1382c0880',
+        'PASSWORD': 'be5052dc', 
         'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
     }
 }
@@ -102,11 +102,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Eastern'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
+TIME_INPUT_FORMATS = ('%H:%M',)
 # Update database configuration with $DATABASE_URL.
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)

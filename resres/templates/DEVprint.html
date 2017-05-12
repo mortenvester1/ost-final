@@ -19,7 +19,7 @@
     {% if reservations %}
     <h2> reservation: </h2>
     {% for res in reservations %}
-        <li> {{ res.owner }}, {{ res.resource }}, {{ res.start }}, {{ res.end }}</li>
+        <li> {{ res.owner }}, {{ res.resource }}, {{ res.start }}, {{ res.duration }}, {{ res.end }}</li>
     {% endfor %}
     {% endif %}
 {% endblock %}

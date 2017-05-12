@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from .models import Resource, Reservation
 from .forms import SignUpForm, ResourceForm, ReservationForm
+from datetime import *
 
 def index(request):
     #logout(request)
@@ -18,9 +19,15 @@ def DEVprint(request):
     users = User.objects.all()
     resources = Resource.objects.all()
     reservations = Reservation.objects.all()
+    
+
+    #time = datetime.time(datetime.now())
+    #DelRes = Reservation.objects.filter(end__lt=time)
+    #DelRes.delete()
+
     #users.delete()
-    resources.delete()
-    reservations.delete()
+    #resources.delete()
+    #reservations.delete()
     out = { "users" : users ,\
             "resources" : resources, \
             "reservations" : reservations}
@@ -81,6 +88,7 @@ def userlogin(request):
     return render(request, 'userlogin.html', {'form' : form})
 
 def userlogout(request):
+    #deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
 
@@ -88,6 +96,7 @@ def userlogout(request):
     return render(request, 'index.html')
 
 def userpage(request):
+    #deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
     user = request.user
@@ -103,6 +112,7 @@ def userpage(request):
     return render(request, 'userpage.html', out)
 
 def createresource(request):
+    #deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
 
@@ -140,7 +150,8 @@ def createresource(request):
     
     return render(request, 'createresource.html', {'form' : form})
 
-def viewresource(request, rid = 0):    
+def viewresource(request, rid = 0):
+    #deletereservation()    
     if not request.user.is_authenticated():
         return redirect('/')
     
@@ -168,13 +179,38 @@ def viewresource(request, rid = 0):
             rName = resource
             date = form.cleaned_data.get('date')
             start = form.cleaned_data.get('start')
-            end = form.cleaned_data.get('end')
+            duration = form.cleaned_data.get('duration')
+            
+            try:
+                temp = duration.split(':')
+                hour = int( temp[0] ) + start.hour + ( int( temp[1] ) // 60)
+                minu = start.minute + ( int( temp[1] ) % 60)
+                end = time( hour=hour, minute = minu )
+            except:
+                print('Booking Spans Too many days')
+                out['user'] = request.user
+                out['form'] = form
+                return render(request, 'viewresource.html', out)
+            
+            x = verifyreservationtime(rName, start, end)
+            if x == 0:
+                out['user'] = request.user
+                out['form'] = form
+                #modifyForm = ResourceForm({'name' : resource[0].name, \
+                #                       'tags' : resource[0].tags,\
+                #                       'start' : resource[0].start,\
+                #                       'end' : resource[0].end})
+                out['modify'] = modifyForm
+                return render(request, 'viewresource.html', out)
+  
             reservation = Reservation(owner = uName,\
                                       resource = rName,\
                                       date = date,\
                                       start = start,\
+                                      duration = duration,\
                                       end = end)
             reservation.save()
+            #print('Imhere')
             return redirect('userpage.html')
         
         else:
@@ -202,10 +238,13 @@ def viewresource(request, rid = 0):
                                        'start' : resource[0].start,\
                                        'end' : resource[0].end})
             out['modify'] = modifyForm
+        #print('is ths it')
+        #print(form)
         return render(request, 'viewresource.html', out)
 
 
 def viewtags(request, tag = ""):
+    #deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
     tag = request.GET['tag']
@@ -225,6 +264,7 @@ def viewtags(request, tag = ""):
     return render(request, 'viewtags.html', out)
 
 def cancelreservation(request, rid = 0):
+    #deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
 
@@ -246,3 +286,37 @@ def cancelreservation(request, rid = 0):
         return render(request, 'userpage.html', out)
     else:
         return redirect('/')
+
+def deletereservation():
+    time = datetime.time(datetime.now())
+    DelRes = Reservation.objects.filter(end__lt=time)
+    DelRes.delete()
+    #print(time)
+
+    return
+
+def verifyreservationtime(resource, start, end):
+    start = timedelta(start.hour, start.minute)
+    end = timedelta(end.hour, end.minute)
+    if start == end:
+        return 0 
+
+    reservations = Reservation.objects.filter(resource = resource)
+    for res in reservations:
+        resourcestart = timedelta(res.resource.start.hour)
+        resourceend = timedelta(res.resource.end.hour)
+        reservationstart = timedelta(res.start.hour)
+        reservationend = timedelta(res.end.hour)
+        # Starts Within Limits
+        if start < resourcestart:
+            return 0
+        # Ends Within Limits
+        elif end > resourceend:
+            return 0 
+        # No Other Reservation
+        elif not ( start <= reservationstart ) and ( end <= reservationstart) :
+            return 0
+        elif not ( start >= resourceend ):
+            return 0
+    
+    return 1

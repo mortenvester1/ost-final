@@ -12,10 +12,14 @@ class SignUpForm(UserCreationForm):
 class ResourceForm(forms.Form):
     name = forms.CharField(max_length=100, label='Resource Name')
     tags = forms.CharField(max_length=100, label='Tags')
-    start = forms.CharField(max_length=100, label='Avail Start')
-    end = forms.CharField(max_length=100, label='Avail End')
+    #start = forms.CharField(max_length=100, label='Avail Start')
+    #end = forms.CharField(max_length=100, label='Avail End')
+    start = forms.TimeField(input_formats=['%H:%M'], help_text='ex: 10:30', label = 'Avail Start')
+    end = forms.TimeField(input_formats=['%H:%M'], help_text='ex: 21:30', label = 'Avail End')
     
 class ReservationForm(forms.Form):
     date = forms.CharField(max_length=100, label='Date')
-    start = forms.CharField(max_length=100, label='Start Time')
-    end = forms.CharField(max_length=100, label='End Time')
+    #start = forms.CharField(max_length=100, label='Start Time')
+    #duration = forms.CharField(max_length=100, label='End Time')
+    start = forms.TimeField(input_formats=['%H:%M'], help_text='ex: 10:30', label='Start Time')
+    duration = forms.CharField(max_length=100, help_text='ex: 10:30', label = 'Duration')
