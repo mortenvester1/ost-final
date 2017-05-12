@@ -9,11 +9,42 @@
           <th> Name </th>
           <th> Owner </th> 
           <th> Hours </th>
+          <th> </th>
+          <th> </th>
+          <th> </th>
+          <th> </th>
+          <th> RSS </th>
         </tr>
         <tr> 
-          <td> {{ resource.name }} </td>
+          <td> 
+            <a href=viewresource?rid={{resource.id}}> 
+              {{ resource.name }} 
+            </a>
+          </td>
           <td> {{ resource.owner }} </td>
           <td> {{ resource.start }} - {{ resource.end }}</td>
+          <td> </td>
+          <td> </td>
+          <td> </td>
+          {% if resource.owner == user %}
+          <td> 
+            <a title="Delete" id="delete" href="deleteresource?rid={{res.id}}">
+              <i class="icon-remove-sign">
+                Delete
+              </i>
+            </a>
+            <script type="text/javascript">
+              document.getElementById('delete').onclick = function(e){
+                if( !confirm('Are you sure. This will also remove ALL reservations!') ) {
+                    e.preventDefault();
+                }
+              }
+            </script>
+          </td>
+          {% else %}
+          <td> </td>
+          {% endif %}
+          <td> <a href=rss?rid={{resource.id}}> RSS  </a> </td>
         </tr>
       </table> <br>
       <div style="width: 90%; margin-left: auto; margin-right: auto;">
@@ -22,11 +53,61 @@
       <a href=viewtags?tag={{tag}}> #{{tag}} </a>
       {% endfor %}
       {% endif %}
+      </div>
       <br>
       <br>
+      <span class="userpageinfoHeader">
+        Upcoming Reservations <br>
+      </span>
+      {% if reservations %}
+        <table class="userpage">
+            <tr>
+                <th> Resource Name </th>
+                <th> Name </th>
+                <th> Hours </th>
+                <th> Date </th> 
+                <th> Start Time </th>
+                <th> Duration </th>
+                <th> </th>
+            </tr>
+            {% for res in reservations %}
+            <tr> 
+                <td> <a href="viewresource?rid={{res.resource.id}}"> {{ res.resource.name }} </a> </td>
+                <td> {{ res.owner }}</td>
+                <td> </td>
+                <td> {{ res.date }} </td>
+                <td> {{ res.start }} </td> 
+                <td> {{ res.duration }}</td>
+                {% if res.owner == user %}
+                  <td>  
+                    <a title="Cancel" id="cancel" href="cancelreservation?rid={{res.id}}">
+                        <i class="icon-remove-sign">
+                            Cancel
+                        </i>
+                    </a>
+                    <script type="text/javascript">
+                        document.getElementById('cancel').onclick = function(e){
+                                if( !confirm('Are you sure?') ) {
+                                    e.preventDefault();
+                                }
+                            }
+                    </script>
+                  </td>
+                {% else %}
+                <td> </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            No Reservations Made
+        {% endif %}
+      <br>
+      <br>
+      <div style="width: 90%; margin-left: auto; margin-right: auto;">
       <div class="formBox">
         {% if form %}
-          <form method="post">
+          <form method="POST">
             {% csrf_token %}
             {% for field in form %}
               <p>
@@ -39,10 +120,19 @@
                 {% endfor %}
               </p>
             {% endfor %}
-            <button type="submit">
+            <button type="submit" name="reservation">
               Make Reservation
             </button>
           </form>
+          {% if form.non_field_errors %}
+            <div class="non-field-errors">
+            {% for err in form.non_field_errors %}
+              <p style="color: red">
+                {{ err }}
+              </p>
+            {% endfor %}
+            </div>
+          {% endif %}
         {% endif %}
       </div>
       {% else %}
@@ -50,7 +140,7 @@
       {% endif %}
       <div class="formBox">
         {% if modify %}
-          <form method = "post">
+          <form method = "POST">
             {% csrf_token %}
             {% for field in modify %}
               <p>
@@ -64,9 +154,18 @@
                 {% endfor %}
               </p>
             {% endfor %}
-            <button type="submit">
+            <button type="submit" name="modify">
               Update Information
             </button>
+            {% if modify.non_field_errors %}
+              <div class="non-field-errors">
+                {% for err in modify.non_field_errors %}
+                  <p style="color: red">
+                    {{ err }}
+                  </p>
+                {% endfor %}
+              </div>
+            {% endif %}
           </form>
         {% endif %}
       </div>

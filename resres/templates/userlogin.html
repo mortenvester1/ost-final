@@ -12,9 +12,17 @@
         {% endfor %}
       </p>
     {% endfor %}
-    {% if exist %}
-          <p style="color: red">Users already exists with email and/or username </p>
+    {% if form.non_field_errors %}
+      <div class="non-field-errors">
+        {% for err in form.non_field_errors %}
+          <p style="color: red">
+            {{ err }}
+          </p>
+        {% endfor %}
+      </div>
     {% endif %}
-    <button type="submit">Log In</button>
+    <button type="submit">
+      Log In
+    </button>
 </form>
 {% endblock %}

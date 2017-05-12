@@ -31,5 +31,9 @@ urlpatterns = [
     url(r'^viewtags(?P<tag>[a-zA-Z0-9]+)$',views.viewtags),
     url(r'^cancelreservation',views.cancelreservation, name = 'cancelreservation'),
     url(r'^cancelreservation(?P<rid>[0-9]+)$',views.cancelreservation),
+    url(r'^deleteresource',views.deleteresource, name = 'deleteresource'),
+    url(r'^deleteresource(?P<rid>[0-9]+)$',views.deleteresource),
+    url(r'^rss',views.rss, name = 'rss'),
+    url(r'^rss(?P<rid>[0-9]+)$',views.rss),
     url(r'^admin/', admin.site.urls),
 ]

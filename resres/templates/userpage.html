@@ -10,23 +10,37 @@
         <table class="userpage">
             <tr>
                 <th> Resource Name </th>
-                <th> Owner </th>
-                <th> Hours </th>
+                <th> Name </th>
+                <th> </th>
                 <th> Date </th> 
                 <th> Start Time </th>
                 <th> Duration </th>
+                <th> </th>
                 <th> </th>
             </tr>
 
             {% for res in userReservations %}
             <tr> 
                 <td> <a href="viewresource?rid={{res.resource.id}}"> {{ res.resource.name }} </a> </td>
-                <td> </td>
+                <td> {{ user }}</td>
                 <td> </td>
                 <td> {{ res.date }} </td>
                 <td> {{ res.start }} </td> 
                 <td> {{ res.duration }}</td>
-                <td> <a href="cancelreservation?rid={{res.id}}"> Cancel? </a> </td>
+                <td>                     
+                    <a title="Cancel" id="cancel" href="cancelreservation?rid={{res.id}}">
+                        <i class="icon-remove-sign">
+                            Cancel
+                        </i>
+                    </a>
+                    <script type="text/javascript">
+                        document.getElementById('cancel').onclick = function(e){
+                                if( !confirm('Are you sure?') ) {
+                                    e.preventDefault();
+                                }
+                            }
+                    </script>
+                </td>
             </tr>
             {% endfor %}
             </table>
@@ -45,10 +59,11 @@
                 <th> Resource Name </th>
                 <th> Owner </th>
                 <th> Hours </th>
-                <th> Date </th> 
-                <th> Start Time </th>
-                <th> End Time </th>
+                <th> </th> 
                 <th> </th>
+                <th> </th>
+                <th> </th>
+                <th> RSS </th>
             </tr>
             {% for res in resources %}
             <tr> 
@@ -59,6 +74,7 @@
                 <td> </td>
                 <td> </td>
                 <td> <a href="viewresource?rid={{res.id}}"> Reserve </a> </td>
+                <td> <a href=rss?rid={{res.id}}> RSS  </a> </td>
             </tr>
             {% endfor %}
             </table>
@@ -76,10 +92,11 @@
                 <th> Resource Name </th>
                 <th> Owner </th>
                 <th> Hours </th>
-                <th> Date </th> 
-                <th> Start Time </th>
-                <th> End Time </th>
+                <th> </th> 
                 <th> </th>
+                <th> </th>
+                <th> </th>
+                <th> RSS </th>
             </tr>
             {% for res in userResources %}
             <tr> 
@@ -89,7 +106,24 @@
                 <td> </td>
                 <td> </td>
                 <td> </td>
-                <td> <a href="viewresource?rid={{res.id}}"> Modify </a> </td>
+                <td> <a href="viewresource?rid={{res.id}}"> 
+                        Modify 
+                    </a> 
+                        /
+                    <a title="Delete" id="delete" href="deleteresource?rid={{res.id}}">
+                        <i class="icon-remove-sign">
+                            Delete
+                        </i>
+                    </a>
+                    <script type="text/javascript">
+                        document.getElementById('delete').onclick = function(e){
+                                if( !confirm('Are you sure?') ) {
+                                    e.preventDefault();
+                                }
+                            }
+                    </script>
+                </td>
+                <td> <a href=rss?rid={{res.id}}> RSS  </a> </td>
             </tr>
             {% endfor %}
             </table>

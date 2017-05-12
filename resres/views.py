@@ -1,12 +1,15 @@
+from django.utils import timezone
+from django.core import serializers
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, render_to_response
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 
+from itertools import chain
 from .models import Resource, Reservation
 from .forms import SignUpForm, ResourceForm, ReservationForm
-from datetime import *
+from datetime import date, time, timedelta, datetime
 
 def index(request):
     #logout(request)
@@ -18,7 +21,9 @@ def DEVprint(request):
     
     users = User.objects.all()
     resources = Resource.objects.all()
+    resources = resources.order_by('name')
     reservations = Reservation.objects.all()
+    reservations = reservations.order_by('date','start')
     
 
     #time = datetime.time(datetime.now())
@@ -41,24 +46,24 @@ def signup(request):
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             email = form.cleaned_data.get('email')
+            exist = User.objects.filter(email = email)
+            if len(exist) > 0:
+                form.add_error(None, 'Email is already being used')
+                return render(request, 'signup.html', {'form' : form})
+
             user = User.objects.create_user(username = username, password = raw_password, email = email)
             user.save()
             user = authenticate(username=username, password=raw_password)
             login(request, user)            
-            # Check if user exists in database
-            #num_results = User.objects.filter(username = username).count()
-            #if num_results > 0:
-            #    return render(request, 'signup.html', {'form' : form, 'exist' : True})
 
             resources = Resource.objects.all()
             out = { 'user' : user, \
                     'resources' : resources}
 
-            print('here2')
-            return render(request, 'userpage.html', out)                 
+            return render(request, 'userpage.html', out)
     else:
         form = SignUpForm()
-    print('here')
+
     return render(request, 'signup.html', {'form' : form})
 
 def userlogin(request):
@@ -71,9 +76,9 @@ def userlogin(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             if request.user.is_authenticated():
-                resources = Resource.objects.all()
-                userResources = Resource.objects.filter(owner = user)
-                reservations = Reservation.objects.filter(owner = user)
+                resources = Resource.objects.all().order_by('-lastreservation')
+                userResources = Resource.objects.filter(owner = user).order_by('name')
+                reservations = Reservation.objects.filter(owner = user).order_by('date','start')
 
                 out = { 'user' : user, \
                         'resources' : resources, \
@@ -96,14 +101,16 @@ def userlogout(request):
     return render(request, 'index.html')
 
 def userpage(request):
-    #deletereservation()
+    deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
     user = request.user
-    resources = Resource.objects.all()
-    userResources = Resource.objects.filter(owner = user)
-    reservations = Reservation.objects.filter(owner = user)
-
+    resources = Resource.objects.all().order_by('-lastreservation')
+    userResources = Resource.objects.filter(owner = user).order_by('name')
+    reservations = Reservation.objects.filter(owner = user).order_by('date','start')
+    
+    # how to order resources
+    # By time of last reservation
     out = {'user' : user, \
            'resources' : resources, \
            'userResources' : userResources, \
@@ -151,100 +158,147 @@ def createresource(request):
     return render(request, 'createresource.html', {'form' : form})
 
 def viewresource(request, rid = 0):
-    #deletereservation()    
+    deletereservation()    
     if not request.user.is_authenticated():
         return redirect('/')
     
     out = {}
-    if request.method == 'POST':
-        form = ReservationForm(request.POST)
-        rid = request.GET['rid']
-        resource = Resource.objects.filter(url = "rid"+rid)[0]
-        out['resource'] = resource
-        
-        if request.user == resource.owner:
-            modifyForm = ResourceForm(request.POST)
-            #out['modify'] = modifyForm
+    rid = request.GET['rid']
+    resource = Resource.objects.filter(url = "rid"+rid)[0]
+    reservations = Reservation.objects.filter(resource = resource).order_by('date','start')
 
-            if modifyForm.is_valid():
-                resource.name = modifyForm.cleaned_data.get('name')
-                resource.tags = modifyForm.cleaned_data.get('tags')
-                resource.start = modifyForm.cleaned_data.get('start')
-                resource.end = modifyForm.cleaned_data.get('end')
+    out['reservations'] = reservations
+    if request.method == 'POST' and 'modify' in request.POST:
+        rid = request.GET['rid']
+        #resource = Resource.objects.filter(url = "rid"+rid)[0]
+        tags = resource.tags.split(' ')
+        out['user'] = request.user
+        out['tags'] = tags
+        out['resource'] = resource
+        modForm = ResourceForm(request.POST)
+
+        if modForm.is_valid():
+            resource.name = modForm.cleaned_data.get('name')
+            resource.tags = modForm.cleaned_data.get('tags')
+            resource.start = modForm.cleaned_data.get('start')
+            resource.end = modForm.cleaned_data.get('end')
+            resource.save()
+            return redirect('userpage.html')
+        else:
+            modForm = ResourceForm({'name' : resource.name, \
+                                    'tags' : resource.tags,\
+                                    'start' : resource.start,\
+                                    'end' : resource.end})
+            modForm.add_error(None, "Information not valid")
+            resForm = ReservationForm()
+            out['modify'] = modForm
+            out['form'] = resForm
+            return render(request, 'viewresource.html', out)
+
+    elif request.method == 'POST' and 'reservation' in request.POST:
+        rid = request.GET['rid']
+        #resource = Resource.objects.filter(url = "rid"+rid)[0]
+        tags = resource.tags.split(' ')
+        out['user'] = request.user
+        out['tags'] = tags
+        out['resource'] = resource
+        resForm = ReservationForm(request.POST)
+
+        if resForm.is_valid():
+            uname = request.user
+            resou = resource
+            datestamp = resForm.cleaned_data.get('date')
+            start = resForm.cleaned_data.get('start')
+            duration = resForm.cleaned_data.get('duration')
+            timestamp = timezone.now()#datetime.time(datetime.now())
+            try:
+                temp = duration.split(':')
+                hour = int( temp[0] ) + start.hour +\
+                       ( start.minute +  int( temp[1] ) ) // 60
+                minu = ( start.minute + int( temp[1] ) ) % 60
+                end = time( hour = hour, minute = minu )
+            except:
+                if hour >= 24:
+                    resForm.add_error(None, "Duration cannot span days")
+                else:
+                    resForm.add_error(None, "Duration not valid")
+                out['form'] = resForm
+                
+                if request.user == resource.owner:
+                    modForm = ResourceForm({'name' : resource.name, \
+                                            'tags' : resource.tags,\
+                                            'start' : resource.start,\
+                                            'end' : resource.end})
+                    out['modify'] = modForm                
+                
+                return render(request, 'viewresource.html', out)
+            
+            if datestamp < date.today():
+                resForm.add_error(None, 'Date is in the past')
+                if request.user == resource.owner:
+                    modForm = ResourceForm({'name' : resource.name, \
+                                            'tags' : resource.tags,\
+                                            'start' : resource.start,\
+                                            'end' : resource.end})
+                    out['modify'] = modForm                
+                out['form'] = resForm
+                return render(request, 'viewresource.html', out)
+
+
+            x = verifyreservationtime(resou, start, end, datestamp)
+            if x > 0:
+                if x == 1:
+                    resForm.add_error(None, "Reservation time not valid.")
+                elif x == 2:
+                    resForm.add_error(None, "Resource not available.")
+                elif x == 3:
+                    resForm.add_error(None, "Duration must be at least one minute")
+
+                if request.user == resource.owner:
+                    modForm = ResourceForm({'name' : resource.name, \
+                                            'tags' : resource.tags,\
+                                            'start' : resource.start,\
+                                            'end' : resource.end})
+                    out['modify'] = modForm
+
+                out['form'] = resForm
+                return render(request, 'viewresource.html', out)
+
+            else:
+                reservation = Reservation(owner = uname,\
+                                      resource = resou,\
+                                      date = datestamp,\
+                                      start = start,\
+                                      duration = duration,\
+                                      end = end,\
+                                      timestamp = timestamp)
+                reservation.save()
+                resource.lastreservation = timestamp
                 resource.save()
                 return redirect('userpage.html')
 
-        if form.is_valid():
-            uName = request.user
-            rName = resource
-            date = form.cleaned_data.get('date')
-            start = form.cleaned_data.get('start')
-            duration = form.cleaned_data.get('duration')
-            
-            try:
-                temp = duration.split(':')
-                hour = int( temp[0] ) + start.hour + ( int( temp[1] ) // 60)
-                minu = start.minute + ( int( temp[1] ) % 60)
-                end = time( hour=hour, minute = minu )
-            except:
-                print('Booking Spans Too many days')
-                out['user'] = request.user
-                out['form'] = form
-                return render(request, 'viewresource.html', out)
-            
-            x = verifyreservationtime(rName, start, end)
-            if x == 0:
-                out['user'] = request.user
-                out['form'] = form
-                #modifyForm = ResourceForm({'name' : resource[0].name, \
-                #                       'tags' : resource[0].tags,\
-                #                       'start' : resource[0].start,\
-                #                       'end' : resource[0].end})
-                out['modify'] = modifyForm
-                return render(request, 'viewresource.html', out)
-  
-            reservation = Reservation(owner = uName,\
-                                      resource = rName,\
-                                      date = date,\
-                                      start = start,\
-                                      duration = duration,\
-                                      end = end)
-            reservation.save()
-            #print('Imhere')
-            return redirect('userpage.html')
-        
-        else:
-            out['user'] = request.user
-            out['form'] = form
-            return render(request, 'viewresource.html', out)
     else:
         rid = request.GET['rid']
-        resource = Resource.objects.filter(url = "rid"+rid)
-        if len(resource) > 0:
-            out['resource'] = resource[0]
-            tags = resource[0].tags.split(' ')
-            out['tags'] = tags
-        else:
-            out = {}
-            print('here4')
-            return render(request, 'viewresource.html', out)
+        #resource = Resource.objects.filter(url = "rid"+rid)[0]
+        tags = resource.tags.split(' ')
 
-    
-        form = ReservationForm()
-        out['form'] = form
-        if request.user == resource[0].owner:
-            modifyForm = ResourceForm({'name' : resource[0].name, \
-                                       'tags' : resource[0].tags,\
-                                       'start' : resource[0].start,\
-                                       'end' : resource[0].end})
-            out['modify'] = modifyForm
-        #print('is ths it')
-        #print(form)
+        resForm = ReservationForm()
+        out['user'] = request.user
+        out['tags'] = tags
+        out['resource'] = resource
+        out['form'] = resForm
+
+        if request.user == resource.owner:
+            modForm = ResourceForm({'name' : resource.name, \
+                                    'tags' : resource.tags,\
+                                    'start' : resource.start,\
+                                    'end' : resource.end})
+            out['modify'] = modForm
         return render(request, 'viewresource.html', out)
 
 
 def viewtags(request, tag = ""):
-    #deletereservation()
+    deletereservation()
     if not request.user.is_authenticated():
         return redirect('/')
     tag = request.GET['tag']
@@ -263,8 +317,28 @@ def viewtags(request, tag = ""):
 
     return render(request, 'viewtags.html', out)
 
+def rss(request, rid = 0):
+    deletereservation()
+
+    if not request.user.is_authenticated():
+        return redirect('/')
+
+    rid = request.GET['rid']
+    try:
+        resource = Resource.objects.filter(id = int(rid))
+        reservations = Reservation.objects.filter(resource = resource)
+        data = serializers.serialize("xml", reservations)
+
+    except:
+        reservations = Reservation.objects.filter(id = 0)
+        data = serializers.serialize("xml", reservations)
+    
+    out = {'data' : data}
+    return render(request, 'rss.html', out)
+
 def cancelreservation(request, rid = 0):
     #deletereservation()
+    timenow = timezone.now()
     if not request.user.is_authenticated():
         return redirect('/')
 
@@ -273,10 +347,28 @@ def cancelreservation(request, rid = 0):
     
     user = request.user
     if user == reservation.owner:
+        resource = reservation.resource
+        
         reservation.delete()
-        resources = Resource.objects.all()
-        userResources = Resource.objects.filter(owner = user)
-        reservations = Reservation.objects.filter(owner = user)
+        reservations = Reservation.objects.filter(id = rid).order_by('-timestamp')
+        if len(reservations) > 0:
+            timestamp = reservations[0].timestamp
+            resource.lastreservation = timestamp
+        else:
+            resource.lastreservation = timenow
+        resource.save()
+
+        #print('Here')
+        #resources = Resource.objects.filter(lastreservation__lt=timenow).order_by('-lastreservation')
+        #print('Here1')
+        #resources._result_cache.append(Resource.objects.filter(lastreservation = timenow))# | resources
+        #print('Here2')
+        #resources = resources | QuerySet(resource)
+        
+
+        resources = Resource.objects.all().order_by('-lastreservation')
+        userResources = Resource.objects.filter(owner = user).order_by('name')
+        reservations = Reservation.objects.filter(owner = user).order_by('date','start')
 
         out = {'user' : user, \
            'resources' : resources, \
@@ -287,36 +379,95 @@ def cancelreservation(request, rid = 0):
     else:
         return redirect('/')
 
+def deleteresource(request, rid = 0):
+    user = request.user
+    if not request.user.is_authenticated():
+        return redirect('/')
+    else:
+        rid = request.GET['rid']
+        resource = Resource.objects.filter(id = int(rid))[0]
+        if user != resource.owner:
+            return redirect('/')
+
+        reservations = Reservation.objects.filter(resource = resource)
+        reservations.delete()
+        resource.delete()
+
+        resources = Resource.objects.all()
+        userResources = Resource.objects.filter(owner = user)
+        reservations = Reservation.objects.filter(owner = user)
+        
+        resources = resources.order_by('-lastreservation')
+        reservations = reservations.order_by('date','start')
+        userResources = userResources.order_by('name')
+
+
+        out = {'user' : user, \
+               'resources' : resources, \
+               'userResources' : userResources, \
+               'userReservations' : reservations}
+
+        return render(request, 'userpage.html', out)
+
 def deletereservation():
-    time = datetime.time(datetime.now())
-    DelRes = Reservation.objects.filter(end__lt=time)
-    DelRes.delete()
-    #print(time)
+    datenow = date.today()
+    timenow = datetime.now().time()
+    #time = timezone.now()
+    deleteSet = Reservation.objects.filter(date__lte=datenow)
+    deleteSet = deleteSet.filter(end__lt=timenow)
+
+    resources = []
+    for res in deleteSet:
+        if res.resource not in resources:
+            resources.append(res.resource)
+
+    
+    deleteSet.delete()
+    for resource in resources:
+        reservations = Reservation.objects.filter(resource = resource).order_by('-timestamp')
+        if len(reservations) > 0:
+            timestamp = reservations[0].timestamp
+            resource.lastreservation = timestamp
+        else:
+            resource.lastreservation = timezone.now()
+        resource.save()
 
     return
 
-def verifyreservationtime(resource, start, end):
-    start = timedelta(start.hour, start.minute)
-    end = timedelta(end.hour, end.minute)
+def verifyreservationtime(resource, start, end, date):
+    start = timedelta(hours = start.hour, \
+                      minutes = start.minute)
+    end = timedelta(hours = end.hour, \
+                    minutes = end.minute)
+    resourcestart = timedelta(hours = resource.start.hour, \
+                              minutes = resource.start.minute)
+    resourceend = timedelta(hours = resource.end.hour, \
+                            minutes = resource.end.minute)
+    # Duration is 0
     if start == end:
-        return 0 
+        return 3 
 
-    reservations = Reservation.objects.filter(resource = resource)
+    # Starts outside Limits
+    if start < resourcestart:
+        return 1
+        # Ends outside Limits
+    elif end > resourceend:
+        return 1    
+
+    reservations = Reservation.objects.filter(resource = resource, date = date)
+    result = []
     for res in reservations:
-        resourcestart = timedelta(res.resource.start.hour)
-        resourceend = timedelta(res.resource.end.hour)
-        reservationstart = timedelta(res.start.hour)
-        reservationend = timedelta(res.end.hour)
-        # Starts Within Limits
-        if start < resourcestart:
-            return 0
-        # Ends Within Limits
-        elif end > resourceend:
-            return 0 
+        reservationstart = timedelta(hours = res.start.hour, \
+                                     minutes = res.start.minute)
+        reservationend = timedelta(hours = res.end.hour, \
+                                   minutes = res.end.minute) 
         # No Other Reservation
-        elif not ( start <= reservationstart ) and ( end <= reservationstart) :
-            return 0
-        elif not ( start >= resourceend ):
-            return 0
+        if ( start <= reservationstart ) and ( end <= reservationstart):
+            result.append(0)
+        elif ( start >= reservationend ) and ( end >= reservationend):
+            result.append(0)
     
-    return 1
+    if len(result) == len(reservations):
+        return 0
+    else:
+        return 2

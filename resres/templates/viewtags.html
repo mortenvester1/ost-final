@@ -9,6 +9,7 @@
           <th> Resource Name </th>
           <th> Owner </th> 
           <th> Availbilty Hours </th>
+          <th> RSS </th>
         </tr>
         {% for res in tags %}
         <tr> 
@@ -17,6 +18,7 @@
           </td>
           <td> {{ res.owner }} </td>
           <td> {{ res.start }} - {{ res.end }}</td>
+          <td> <a href=rss?rid={{resource.id}}> RSS  </a> </td>
         </tr>
         {% endfor %}
       </table> <br>
