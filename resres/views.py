@@ -441,6 +441,7 @@ def deleteresource(request, rid = 0):
         return render(request, 'userpage.html', out)
 
 def deletereservation():
+    #print('I went here')
     datenow = date.today()
     timenow = datetime.now().time()
     deleteSet = Reservation.objects.filter(date__lte=datenow)
@@ -449,8 +450,8 @@ def deletereservation():
     resources = []
     for res in deleteSet:
         if res.resource not in resources:
-            resource.currentcount -= 1
-            resource.save()
+            res.resource.currentcount -= 1
+            res.resource.save()
             resources.append(res.resource)
 
     
