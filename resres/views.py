@@ -31,30 +31,6 @@ def index(request):
     except:
         return render(request, 'index.html')
 
-def emailreservationconfirmation(reservation, email, restype = 'new'):
-    if restype == 'new':
-        message = 'You have made the following Reservation\n\n'
-        subject = 'Your ARRS Reservation: Booking'
-    else:
-        message = 'You have cancelled the following Reservation\n\n'
-        subject = 'Your ARRS Reservation: Cancellation'
-    message += 'Resource:' + str(reservation.resource.name) + "\n\n"
-    message += 'date: ' + str(reservation.date) + "\n\n"
-    message += 'start: ' + str(reservation.start) + '\n\n'
-    message += 'end: ' + str(reservation.end) + '\n\n'
-    message += 'duration: ' + str(reservation.duration) + '\n\n'
-    
-    print(email)
-    connection = mail.get_connection()
-    connection.open()        
-    mail.send_mail(subject = subject, \
-              message = message, \
-              from_email = 'app68100833@heroku.com', \
-              recipient_list = [str(email)], \
-              fail_silently=False, connection=connection,)
-    connection.close()
-    return 
-
 def search(request, q = ''):
     out = {}
     q = request.GET['q']
@@ -326,9 +302,6 @@ def viewresource(request, rid = 0):
                 resource.reservationcount += 1
                 resource.save()
                 
-                email = request.user.email
-                #emailreservationconfirmation(reservation, email = 'o9hhu@vmani.com')
-                emailreservationconfirmation(reservation, email)
                 return redirect('userpage.html')
 
     else:
@@ -407,9 +380,6 @@ def cancelreservation(request, rid = 0):
         resource.currentcount -= 1
         resource.save()
         
-        email = request.user.email
-        #emailreservationconfirmation(reservation, email = 'o9hhu@vmani.com')
-        emailreservationconfirmation(reservation, email, restype = 'cancel')
         reservation.delete()        
 
         resources = Resource.objects.all().order_by('-lastreservation')
