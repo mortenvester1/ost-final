@@ -16,20 +16,20 @@ def index(request):
     #if not request.user.is_authenticated():
     #    return redirect('/')
     
-    #try:
-    #    user = request.user
-    #print(user.email)
-    #    resources = Resource.objects.all().order_by('-lastreservation')
-    #    userResources = Resource.objects.filter(owner = user).order_by('name')
-    #    reservations = Reservation.objects.filter(owner = user).order_by('date','start')
-    #    out = { 'user' : user, \
-    #            'resources' : resources, \
-    #            'userResources' : userResources, \
-    #            'userReservations' : reservations}
-    #    
-    #    return render(request, 'userpage.html', out)
-    #except:
-    return render(request, 'index.html')
+    try:
+        user = request.user
+        #print(user.email)
+        resources = Resource.objects.all().order_by('-lastreservation')
+        userResources = Resource.objects.filter(owner = user).order_by('name')
+        reservations = Reservation.objects.filter(owner = user).order_by('date','start')
+        out = { 'user' : user, \
+                'resources' : resources, \
+                'userResources' : userResources, \
+                'userReservations' : reservations}
+        
+        return render(request, 'userpage.html', out)
+    except:
+        return render(request, 'index.html')
 
 def emailreservationconfirmation(reservation, email, restype = 'new'):
     if restype == 'new':
@@ -43,7 +43,8 @@ def emailreservationconfirmation(reservation, email, restype = 'new'):
     message += 'start: ' + str(reservation.start) + '\n\n'
     message += 'end: ' + str(reservation.end) + '\n\n'
     message += 'duration: ' + str(reservation.duration) + '\n\n'
-    #print(email)
+    
+    print(email)
     connection = mail.get_connection()
     connection.open()        
     mail.send_mail(subject = subject, \
@@ -168,6 +169,11 @@ def createresource(request):
             start = form.cleaned_data.get('start')
             end = form.cleaned_data.get('end')
 
+            if start > end:
+                form.add_error(None, "Availability not valid")
+                return render(request, 'createresource.html', {'form' : form})                
+
+
             #Check if exists, then fail
             count = Resource.objects.filter(owner = owner, name = name).count()
             if count > 0:
@@ -261,10 +267,12 @@ def viewresource(request, rid = 0):
                 out['form'] = resForm
                 
                 if request.user == resource.owner:
+                    end = "%s:%s" % (resource.end.hour, resource.end.minute)
+                    start = "%s:%s" % (resource.start.hour, resource.start.minute)
                     modForm = ResourceForm({'name' : resource.name, \
                                             'tags' : resource.tags,\
-                                            'start' : resource.start,\
-                                            'end' : resource.end})
+                                            'start' : start,\
+                                            'end' : end})
                     out['modify'] = modForm                
                 
                 return render(request, 'viewresource.html', out)
@@ -272,10 +280,12 @@ def viewresource(request, rid = 0):
             if datestamp < date.today():
                 resForm.add_error(None, 'Date is in the past')
                 if request.user == resource.owner:
+                    end = "%s:%s" % (resource.end.hour, resource.end.minute)
+                    start = "%s:%s" % (resource.start.hour, resource.start.minute)
                     modForm = ResourceForm({'name' : resource.name, \
                                             'tags' : resource.tags,\
-                                            'start' : resource.start,\
-                                            'end' : resource.end})
+                                            'start' : start,\
+                                            'end' : end})
                     out['modify'] = modForm                
                 out['form'] = resForm
                 return render(request, 'viewresource.html', out)
@@ -291,10 +301,12 @@ def viewresource(request, rid = 0):
                     resForm.add_error(None, "Duration must be at least one minute")
 
                 if request.user == resource.owner:
+                    end = "%s:%s" % (resource.end.hour, resource.end.minute)
+                    start = "%s:%s" % (resource.start.hour, resource.start.minute)
                     modForm = ResourceForm({'name' : resource.name, \
                                             'tags' : resource.tags,\
-                                            'start' : resource.start,\
-                                            'end' : resource.end})
+                                            'start' : start,\
+                                            'end' : end})
                     out['modify'] = modForm
 
                 out['form'] = resForm
@@ -331,10 +343,12 @@ def viewresource(request, rid = 0):
         out['form'] = resForm
 
         if request.user == resource.owner:
+            end = "%s:%s" % (resource.end.hour, resource.end.minute)
+            start = "%s:%s" % (resource.start.hour, resource.start.minute)
             modForm = ResourceForm({'name' : resource.name, \
                                     'tags' : resource.tags,\
-                                    'start' : resource.start,\
-                                    'end' : resource.end})
+                                    'start' : start,\
+                                    'end' : end})
             out['modify'] = modForm
         return render(request, 'viewresource.html', out)
 
@@ -472,6 +486,8 @@ def verifyreservationtime(resource, start, end, date):
     # Duration is 0
     if start == end:
         return 3 
+    elif end < start:
+        return 1
 
     # Starts outside Limits
     if start < resourcestart:

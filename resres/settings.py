@@ -22,7 +22,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "jq599!+3-9us5onqtp8d8#w+8a081r8me@9!9mzi-=!53+p9fq",
+
 #SECRET_KEY = os.environ.get('SECRET_KEY', ''),
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -79,20 +79,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
-        'NAME' : 'heroku_3cb8a28358bc420', 
-        'USER' : 'b74cb1382c0880',
-        'PASSWORD': 'be5052dc',
+        'NAME' : os.environ.get('DBNAME',''), 
+        'USER' : os.environ.get('DBUSER',''),
+        'PASSWORD': os.environ.get('DBPASSWORD',''),
     }
 }
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql', 
-#        'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
-#        'NAME' : os.environ.get('DBNAME',''), 
-#        'USER' : os.environ.get('DBUSER',''),
-#        'PASSWORD': os.environ.get('DBPASSWORD',''),
-#    }
-#}
 #print(DATABASES)
 #pdb.set_trace()
 

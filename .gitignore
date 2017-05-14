@@ -6,3 +6,4 @@ resres/.env
 migrate.sh
 push.sh
 devPlan.txt
+hard.py
