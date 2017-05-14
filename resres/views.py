@@ -13,21 +13,23 @@ from datetime import date, time, timedelta, datetime
 
 def index(request):
     #logout(request)
-    if not request.user.is_authenticated():
-        return redirect('/')
+    #if not request.user.is_authenticated():
+    #    return redirect('/')
     
-    else:
-        user = request.user
-        print(user.email)
-        resources = Resource.objects.all().order_by('-lastreservation')
-        userResources = Resource.objects.filter(owner = user).order_by('name')
-        reservations = Reservation.objects.filter(owner = user).order_by('date','start')
-        out = { 'user' : user, \
-                'resources' : resources, \
-                'userResources' : userResources, \
-                'userReservations' : reservations}
-        
-        return render(request, 'userpage.html', out)
+    #try:
+    #    user = request.user
+    #print(user.email)
+    #    resources = Resource.objects.all().order_by('-lastreservation')
+    #    userResources = Resource.objects.filter(owner = user).order_by('name')
+    #    reservations = Reservation.objects.filter(owner = user).order_by('date','start')
+    #    out = { 'user' : user, \
+    #            'resources' : resources, \
+    #            'userResources' : userResources, \
+    #            'userReservations' : reservations}
+    #    
+    #    return render(request, 'userpage.html', out)
+    #except:
+    return render(request, 'index.html')
 
 def emailreservationconfirmation(reservation, email, restype = 'new'):
     if restype == 'new':
@@ -41,7 +43,7 @@ def emailreservationconfirmation(reservation, email, restype = 'new'):
     message += 'start: ' + str(reservation.start) + '\n\n'
     message += 'end: ' + str(reservation.end) + '\n\n'
     message += 'duration: ' + str(reservation.duration) + '\n\n'
-
+    #print(email)
     connection = mail.get_connection()
     connection.open()        
     mail.send_mail(subject = subject, \
