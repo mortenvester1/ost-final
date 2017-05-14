@@ -22,7 +22,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', ''),
+SECRET_KEY = "jq599!+3-9us5onqtp8d8#w+8a081r8me@9!9mzi-=!53+p9fq",
+#SECRET_KEY = os.environ.get('SECRET_KEY', ''),
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -74,24 +75,24 @@ WSGI_APPLICATION = 'resres.wsgi.application'
 
 
 # Database
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql', 
-#        'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
-#        'NAME' : '{{ DBNAME }}', 
-#        'USER' : '{{ DBUSER }}',
-#        'PASSWORD': '{{ DBPASSWORD }}',
-#    }
-#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
-        'NAME' : os.environ.get('DBNAME',''), 
-        'USER' : os.environ.get('DBUSER',''),
-        'PASSWORD': os.environ.get('DBPASSWORD',''),
+        'NAME' : 'heroku_3cb8a28358bc420', 
+        'USER' : 'b74cb1382c0880',
+        'PASSWORD': 'be5052dc',
     }
 }
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql', 
+#        'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
+#        'NAME' : os.environ.get('DBNAME',''), 
+#        'USER' : os.environ.get('DBUSER',''),
+#        'PASSWORD': os.environ.get('DBPASSWORD',''),
+#    }
+#}
 #print(DATABASES)
 #pdb.set_trace()
 
@@ -147,8 +148,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = 'app68100833@heroku.com'
+EMAIL_HOST_PASSWORD = 'adkjtc8n0587'
 EMAIL_USE_TLS = True
 
 
