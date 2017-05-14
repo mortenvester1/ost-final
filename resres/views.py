@@ -1,43 +1,77 @@
 from django.utils import timezone
-from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core import mail, serializers
 from django.shortcuts import render, redirect, render_to_response
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 
-from itertools import chain
+import re
 from .models import Resource, Reservation
 from .forms import SignUpForm, ResourceForm, ReservationForm
 from datetime import date, time, timedelta, datetime
 
 def index(request):
     #logout(request)
-    return render(request, 'index.html')
-
-def DEVprint(request):
     if not request.user.is_authenticated():
         return redirect('/')
     
-    users = User.objects.all()
-    resources = Resource.objects.all()
-    resources = resources.order_by('name')
-    reservations = Reservation.objects.all()
-    reservations = reservations.order_by('date','start')
-    
+    else:
+        user = request.user
+        print(user.email)
+        resources = Resource.objects.all().order_by('-lastreservation')
+        userResources = Resource.objects.filter(owner = user).order_by('name')
+        reservations = Reservation.objects.filter(owner = user).order_by('date','start')
+        out = { 'user' : user, \
+                'resources' : resources, \
+                'userResources' : userResources, \
+                'userReservations' : reservations}
+        
+        return render(request, 'userpage.html', out)
 
-    #time = datetime.time(datetime.now())
-    #DelRes = Reservation.objects.filter(end__lt=time)
-    #DelRes.delete()
+def emailreservationconfirmation(reservation, email, restype = 'new'):
+    if restype == 'new':
+        message = 'You have made the following Reservation\n\n'
+        subject = 'Your ARRS Reservation: Booking'
+    else:
+        message = 'You have cancelled the following Reservation\n\n'
+        subject = 'Your ARRS Reservation: Cancellation'
+    message += 'Resource:' + str(reservation.resource.name) + "\n\n"
+    message += 'date: ' + str(reservation.date) + "\n\n"
+    message += 'start: ' + str(reservation.start) + '\n\n'
+    message += 'end: ' + str(reservation.end) + '\n\n'
+    message += 'duration: ' + str(reservation.duration) + '\n\n'
 
-    #users.delete()
-    #resources.delete()
-    #reservations.delete()
-    out = { "users" : users ,\
-            "resources" : resources, \
-            "reservations" : reservations}
+    connection = mail.get_connection()
+    connection.open()        
+    mail.send_mail(subject = subject, \
+              message = message, \
+              from_email = 'app68100833@heroku.com', \
+              recipient_list = [str(email)], \
+              fail_silently=False, connection=connection,)
+    connection.close()
+    return 
 
-    return render(request, 'DEVprint.html', out)
+def search(request, q = ''):
+    out = {}
+    q = request.GET['q']
+    if q == "":
+        return render(request, 'search.html', out)
+    else:
+        qlist = q.split(' ')
+        tags = Resource.objects.filter(tags__icontains=qlist[0])
+        resources = Resource.objects.filter(name__icontains=qlist[0])
+        if len(qlist) > 1:
+            for query in qlist[1:]:
+                tags = tags | Resource.objects.filter(tags__icontains=query)
+                resources = resources | Resource.objects.filter(name__icontains=query)
+        
+        out['query'] = q
+        out['tags'] = tags
+        out['resources'] = resources
+        return render(request, 'search.html', out)
+
+    return redirect('/')
 
 def signup(request):
     if request.method == 'POST':
@@ -274,7 +308,13 @@ def viewresource(request, rid = 0):
                                       timestamp = timestamp)
                 reservation.save()
                 resource.lastreservation = timestamp
+                resource.currentcount += 1
+                resource.reservationcount += 1
                 resource.save()
+                
+                email = request.user.email
+                #emailreservationconfirmation(reservation, email = 'o9hhu@vmani.com')
+                emailreservationconfirmation(reservation, email)
                 return redirect('userpage.html')
 
     else:
@@ -348,23 +388,13 @@ def cancelreservation(request, rid = 0):
     user = request.user
     if user == reservation.owner:
         resource = reservation.resource
-        
-        reservation.delete()
-        reservations = Reservation.objects.filter(id = rid).order_by('-timestamp')
-        if len(reservations) > 0:
-            timestamp = reservations[0].timestamp
-            resource.lastreservation = timestamp
-        else:
-            resource.lastreservation = timenow
+        resource.currentcount -= 1
         resource.save()
-
-        #print('Here')
-        #resources = Resource.objects.filter(lastreservation__lt=timenow).order_by('-lastreservation')
-        #print('Here1')
-        #resources._result_cache.append(Resource.objects.filter(lastreservation = timenow))# | resources
-        #print('Here2')
-        #resources = resources | QuerySet(resource)
         
+        email = request.user.email
+        #emailreservationconfirmation(reservation, email = 'o9hhu@vmani.com')
+        emailreservationconfirmation(reservation, email, restype = 'cancel')
+        reservation.delete()        
 
         resources = Resource.objects.all().order_by('-lastreservation')
         userResources = Resource.objects.filter(owner = user).order_by('name')
@@ -390,6 +420,7 @@ def deleteresource(request, rid = 0):
             return redirect('/')
 
         reservations = Reservation.objects.filter(resource = resource)
+        #len(reservations)
         reservations.delete()
         resource.delete()
 
@@ -412,26 +443,18 @@ def deleteresource(request, rid = 0):
 def deletereservation():
     datenow = date.today()
     timenow = datetime.now().time()
-    #time = timezone.now()
     deleteSet = Reservation.objects.filter(date__lte=datenow)
     deleteSet = deleteSet.filter(end__lt=timenow)
 
     resources = []
     for res in deleteSet:
         if res.resource not in resources:
+            resource.currentcount -= 1
+            resource.save()
             resources.append(res.resource)
 
     
     deleteSet.delete()
-    for resource in resources:
-        reservations = Reservation.objects.filter(resource = resource).order_by('-timestamp')
-        if len(reservations) > 0:
-            timestamp = reservations[0].timestamp
-            resource.lastreservation = timestamp
-        else:
-            resource.lastreservation = timezone.now()
-        resource.save()
-
     return
 
 def verifyreservationtime(resource, start, end, date):

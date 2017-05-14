@@ -19,7 +19,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name = 'index'),
-    url(r'^DEVprint', views.DEVprint, name = 'DEVprint'),
+    #url(r'^DEVprint', views.DEVprint, name = 'DEVprint'),
     url(r'^signup', views.signup, name = 'signup'),
     url(r'^userlogin', views.userlogin, name = 'userlogin'),
     url(r'^userlogout', views.userlogout, name = 'userlogout'),
@@ -35,5 +35,7 @@ urlpatterns = [
     url(r'^deleteresource(?P<rid>[0-9]+)$',views.deleteresource),
     url(r'^rss',views.rss, name = 'rss'),
     url(r'^rss(?P<rid>[0-9]+)$',views.rss),
+    url(r'^search',views.search, name = 'search'),
+    url(r'^search(?P<q>.+)$',views.search),
     url(r'^admin/', admin.site.urls),
 ]

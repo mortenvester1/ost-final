@@ -1,0 +1,70 @@
+{% extends 'index.html' %}
+{% block content %}
+{% if query %}
+<span class="userpageinfoHeader"> 
+  {% if query %}
+    Resources with tags related to: {{ query }} <br>
+  {% endif %}
+  {% if tags %}
+      <table class="userpage" style="font-size: .8em">
+        <tr>
+          <th> Resource Name </th>
+          <th> tags </th> 
+          <th> Availbilty Hours </th>
+          <th> RSS </th>
+        </tr>
+        {% for res in tags %}
+        <tr> 
+          <td> 
+            <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a>
+          </td>
+          <td> {{ res.tags }} </td>
+          <td> {{ res.start }} - {{ res.end }}</td>
+          <td> <a href=rss?rid={{resource.id}}> RSS  </a> </td>
+        </tr>
+        {% endfor %}
+      </table> <br>
+  {% else %}
+  <br>
+  <span style="margin-left: 5%">
+    No resources found with tags related to query
+  </span>
+  <br>
+  {% endif %}
+</span>
+<span class="userpageinfoHeader"> 
+  {% if query %}
+     <br> Resources with names related to: {{ query }} <br>
+  {% endif %}
+    {% if resources %}
+      <table class="userpage" style="font-size: .8em">
+        <tr>
+          <th> Resource Name </th>
+          <th> tags </th> 
+          <th> Availbilty Hours </th>
+          <th> RSS </th>
+        </tr>
+        {% for res in resources %}
+        <tr> 
+          <td> 
+            <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a>
+          </td>
+          <td> {{ res.owner }} </td>
+          <td> {{ res.start }} - {{ res.end }}</td>
+          <td> <a href=rss?rid={{resource.id}}> RSS  </a> </td>
+        </tr>
+        {% endfor %}
+      </table> <br>
+    {% else %}
+    <br>
+      <span style="margin-left: 5%">
+        No resources found with name related to query
+      </span>
+    <br>
+    {% endif %}    
+  {% else %}
+  <span class="userpageinfoHeader" style="color: red">
+    Query is empty
+  </span>
+  {% endif %}
+{% endblock %}

@@ -11,10 +11,10 @@
             <tr>
                 <th> Resource Name </th>
                 <th> Name </th>
-                <th> </th>
                 <th> Date </th> 
-                <th> Start Time </th>
                 <th> Duration </th>
+                <th> Hours </th>
+                <th> </th>
                 <th> </th>
                 <th> </th>
             </tr>
@@ -23,10 +23,10 @@
             <tr> 
                 <td> <a href="viewresource?rid={{res.resource.id}}"> {{ res.resource.name }} </a> </td>
                 <td> {{ user }}</td>
-                <td> </td>
                 <td> {{ res.date }} </td>
-                <td> {{ res.start }} </td> 
                 <td> {{ res.duration }}</td>
+                <td> {{ res.start }} - {{ res.end }} </td> 
+                <td> </td>
                 <td>                     
                     <a title="Cancel" id="cancel" href="cancelreservation?rid={{res.id}}">
                         <i class="icon-remove-sign">
@@ -56,11 +56,11 @@
         
         <table class="userpage">
             <tr>
-                <th> Resource Name </th>
-                <th> Owner </th>
+                <th> Name </th>
+                <th> Owner </th> 
+                <th> Active <br> Reservation Count </th>
+                <th> Lifetime <br> Reservation Count </th>
                 <th> Hours </th>
-                <th> </th> 
-                <th> </th>
                 <th> </th>
                 <th> </th>
                 <th> RSS </th>
@@ -69,9 +69,9 @@
             <tr> 
                 <td> <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a> </td>
                 <td> {{ res.owner }} </td>
+                <td> {{ res.currentcount }} </td>
+                <td> {{ res.reservationcount }} </td>
                 <td> {{ res.start }} - {{ res.end }}</td> 
-                <td> </td>
-                <td> </td>
                 <td> </td>
                 <td> <a href="viewresource?rid={{res.id}}"> Reserve </a> </td>
                 <td> <a href=rss?rid={{res.id}}> RSS  </a> </td>
@@ -89,11 +89,11 @@
         {% if userResources %}
         <table class="userpage">
             <tr>
-                <th> Resource Name </th>
-                <th> Owner </th>
+                <th> Name </th>
+                <th> Owner </th> 
+                <th> Active <br> Reservation Count </th>
+                <th> Lifetime <br> Reservation Count </th>
                 <th> Hours </th>
-                <th> </th> 
-                <th> </th>
                 <th> </th>
                 <th> </th>
                 <th> RSS </th>
@@ -102,9 +102,9 @@
             <tr> 
                 <td> <a href="viewresource?rid={{res.id}}"> {{ res.name }} </a> </td>
                 <td> {{ res.owner }} </td>
+                <td> {{ res.currentcount }} </td>
+                <td> {{ res.reservationcount }} </td>
                 <td> {{ res.start }} - {{ res.end }}</td> 
-                <td> </td>
-                <td> </td>
                 <td> </td>
                 <td> <a href="viewresource?rid={{res.id}}"> 
                         Modify 

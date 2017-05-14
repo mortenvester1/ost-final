@@ -2,6 +2,7 @@
 venv/*
 .env
 resres/__pycache__/*
+resres/.env
 migrate.sh
 push.sh
 devPlan.txt

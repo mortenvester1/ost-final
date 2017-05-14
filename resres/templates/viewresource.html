@@ -8,9 +8,9 @@
         <tr>
           <th> Name </th>
           <th> Owner </th> 
+          <th> Active <br> Reservation Count </th>
+          <th> Lifetime <br> Reservation Count </th>
           <th> Hours </th>
-          <th> </th>
-          <th> </th>
           <th> </th>
           <th> </th>
           <th> RSS </th>
@@ -22,9 +22,9 @@
             </a>
           </td>
           <td> {{ resource.owner }} </td>
+          <td> {{ resource.currentcount }} </td>
+          <td> {{ resource.reservationcount }} </td>
           <td> {{ resource.start }} - {{ resource.end }}</td>
-          <td> </td>
-          <td> </td>
           <td> </td>
           {% if resource.owner == user %}
           <td> 
@@ -64,20 +64,21 @@
             <tr>
                 <th> Resource Name </th>
                 <th> Name </th>
-                <th> Hours </th>
                 <th> Date </th> 
-                <th> Start Time </th>
                 <th> Duration </th>
+                <th> Hours </th>
+                <th> </th>
+                <th> </th>
                 <th> </th>
             </tr>
             {% for res in reservations %}
             <tr> 
                 <td> <a href="viewresource?rid={{res.resource.id}}"> {{ res.resource.name }} </a> </td>
                 <td> {{ res.owner }}</td>
-                <td> </td>
                 <td> {{ res.date }} </td>
-                <td> {{ res.start }} </td> 
                 <td> {{ res.duration }}</td>
+                <td> {{ res.start }} - {{ res.end }}</td>
+                <td> </td>
                 {% if res.owner == user %}
                   <td>  
                     <a title="Cancel" id="cancel" href="cancelreservation?rid={{res.id}}">
@@ -96,6 +97,7 @@
                 {% else %}
                 <td> </td>
                 {% endif %}
+                <td> </td>
             </tr>
             {% endfor %}
             </table>

@@ -5,11 +5,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-#class Users(models.Model):
-#    name = models.CharField(max_length=100, unique = True)
-#    password = models.CharField(max_length=100)
-#    email = models.CharField(max_length=100, unique = True)
-
 class Resource(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -18,6 +13,8 @@ class Resource(models.Model):
     end = models.TimeField(default=time(00, 00))
     url = models.CharField(max_length=100, default="")
     lastreservation = models.DateTimeField(default=timezone.now)
+    reservationcount = models.BigIntegerField(default = 0)
+    currentcount = models.BigIntegerField(default = 0)
 
 class Reservation(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
