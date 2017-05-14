@@ -76,11 +76,11 @@ WSGI_APPLICATION = 'resres.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'HOST' : 'us-cdbr-iron-east-03.cleardb.net',
-        'NAME' : os.environ.get('DBNAME',''), 
-        'USER' : os.environ.get('DBUSER',''),
-        'PASSWORD': os.environ.get('DBPASSWORD',''),
+        'ENGINE': os.environ.get('ENGINE',''),
+        'NAME': os.environ.get('NAME',''),
+        'USER': os.environ.get('USER',''),
+        'PASSWORD': os.environ.get('PASSWORD',''),
+        'HOST': os.environ.get('HOST',''),
     }
 }
 #print(DATABASES)
